@@ -19,3 +19,4 @@ for sample in range(datasetV1.shape[0]):
 datasetDTI = datasetV1.drop(rowsToDelete, axis=0, inplace=False)
 datasetDTI.drop('Modality', axis=1, inplace=True)
 datasetDTI.reset_index(drop=True)
+a = 1
