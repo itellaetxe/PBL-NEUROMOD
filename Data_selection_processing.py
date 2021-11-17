@@ -6,17 +6,27 @@ Created on Fri Nov  5 12:50:24 2021
 """
 
 import pandas as pd
+import numpy as np
 
-datasetV1 = pd.read_csv("./Trial_1_11_04_2021.csv")
-datasetV1.columns
+dataset = pd.read_csv("./idaSearch_11_17_2021.csv")
+dataset.columns
 
-rowsToDelete = []
-for sample in range(datasetV1.shape[0]):
-    mod = datasetV1['Modality']
-    if mod[sample] != 'DTI':
-        rowsToDelete.append(sample)
-
-datasetDTI = datasetV1.drop(rowsToDelete, axis=0, inplace=False)
-datasetDTI.drop('Modality', axis=1, inplace=True)
-datasetDTI.reset_index(drop=True)
-a = 1
+for sample, idx in zip(dataset['Research Group'], range(0,len(dataset['Research Group']))):
+    if sample == 'EMCI' or sample == 'LMCI':
+        dataset['Research Group'][idx] = 'MCI'
+        
+MCIcount=0
+SMCcount=0
+CNcount=0
+ADcount=0
+for sample in dataset['Research Group']:
+    if sample == 'MCI':
+        MCIcount += 1
+    if sample == 'SMC':
+        SMCcount += 1
+    if sample == 'CN':
+        CNcount += 1
+    if sample == 'AD':
+        ADcount += 1
+        
+numOfPatients = np.unique(dataset['Subject ID'])
