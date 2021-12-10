@@ -28,11 +28,9 @@ for sample in dataset['Research Group']:
         CNcount += 1
     if sample == 'AD':
         ADcount += 1
-<<<<<<< HEAD
         
 numOfPatients = np.unique(dataset['Description'])
 print(numOfPatients)
-=======
 
 descriptionTypes = np.unique(dataset['Description'])
 print(descriptionTypes)
@@ -42,4 +40,3 @@ print(len(patientNum))
 
 
 
->>>>>>> 428960a7b028f65bb4e067c64f7f59f683f0ba7b
