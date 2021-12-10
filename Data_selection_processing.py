@@ -29,4 +29,5 @@ for sample in dataset['Research Group']:
     if sample == 'AD':
         ADcount += 1
         
-numOfPatients = np.unique(dataset['Subject ID'])
+numOfPatients = np.unique(dataset['Description'])
+print(numOfPatients)
