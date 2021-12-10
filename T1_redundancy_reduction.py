@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 dataset = pd.read_csv("./idaSearch_12_09_2021.csv")
-dataset.columns
+var = dataset.columns
 
 #
 for sample, idx in zip(dataset['Research Group'], range(0, len(dataset['Research Group']))):
