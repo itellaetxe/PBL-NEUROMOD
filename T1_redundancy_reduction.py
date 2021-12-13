@@ -67,3 +67,13 @@ for sample, idx in zip(contains_IR_FSPGR['Subject ID'], range(0, len(contains_IR
         FSPGR_unique_idxs.append(contains_IR_FSPGR.index[idx])
 # There were 124 IR-FSPGR images in the dataset, we got 117 non-repeated occurrences
 # meaning that we discarded (124-117) images
+
+
+
+
+
+
+
+
+
+
