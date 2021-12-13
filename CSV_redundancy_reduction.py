@@ -3,12 +3,22 @@
 Created on Fri Dec 10 09:12:02 2021
 
 @author: IMANOL
+
+This script is thought to perform an early filtering of the data to be
+downloaded. A .csv file from ADNI is downloaded and the samples that are interesting
+for us are filtered.
+
+Once the list of interest is generated, the files that are not adecuate are deleted
+from the computer by adding the correct path.
 """
 
+import shutil
 import pandas as pd
 import numpy as np
 
 dataset = pd.read_csv("./idaSearch_12_09_2021.csv")
+
+#%% FILTERING DTI-RELATED DATA
 
 # Set both EMCI and LMCI as MCI
 for sample, idx in zip(dataset['Research Group'], range(0, len(dataset['Research Group']))):
@@ -18,56 +28,53 @@ for sample, idx in zip(dataset['Research Group'], range(0, len(dataset['Research
 # Delete all structural (MPRAGE) data from dataset        
 descr = list(dataset['Description'])
 locs = dataset.loc[dataset['Description'].str.contains('MPRAGE')]
-rowsToDelete = locs.index
+rows_to_delete = locs.index
+dataset.drop(rows_to_delete, axis='index', inplace=True)
 
-dataset.drop(rowsToDelete, axis='index', inplace=True)
-
-#%% FILTERING DTI SAMPLES BASED ON DESCRIPTION TAGS
+"""FILTERING DTI SAMPLES BASED ON DESCRIPTION TAGS"""
 
 # Save 'Axial DTI' tags in new dataframe
 descr = list(dataset['Description'])
 locs = dataset.loc[dataset['Description'] == 'Axial DTI']
-outputDTI = pd.DataFrame(locs)
-rowsToDelete = locs.index
-dataset.drop(rowsToDelete, axis='index', inplace=True)
+output_DTI = pd.DataFrame(locs)
+rows_to_delete = locs.index
+dataset.drop(rows_to_delete, axis='index', inplace=True)
 dataset.reset_index(inplace=True)
-outputDTI.reset_index(inplace=True)
+output_DTI.reset_index(inplace=True)
 
 # Save 'Axial MB DTI' tags in new dataframe 
 descr = list(dataset['Description'])
 locs = dataset.loc[dataset['Description'] == 'Axial MB DTI']
-outputDTI2 = pd.DataFrame(locs)
-rowsToDelete = locs.index
-dataset.drop(rowsToDelete, axis='index', inplace=True)
+output_DTI2 = pd.DataFrame(locs)
+rows_to_delete = locs.index
+dataset.drop(rows_to_delete, axis='index', inplace=True)
 dataset.reset_index(inplace=True)
-outputDTI2.reset_index(inplace=True)
+output_DTI2.reset_index(inplace=True)
 
 # Concatenate both 'Axial DTI' and 'Axial MB DTI'dataframes into one
-out = pd.concat([outputDTI, outputDTI2])
+out = pd.concat([output_DTI, output_DTI2])
 
 # Delete Subject IDs if they are already present in the new dataframe to avoid
 # redundancy and derived data
-for i in range(0, len(outputDTI['Subject ID'])):
-    repeated_IDs = dataset.loc[dataset['Subject ID'].str.contains(outputDTI['Subject ID'][i])]
+for i in range(0, len(output_DTI['Subject ID'])):
+    repeated_IDs = dataset.loc[dataset['Subject ID'].str.contains(output_DTI['Subject ID'][i])]
     dataset.drop(repeated_IDs.index, axis='index', inplace=True)
     
 out.drop(['index','level_0'], axis='columns', inplace=True)
 out.reset_index(inplace=True)
 out.drop(['index'], axis='columns', inplace=True)
-    
-#%% EVALUATE THE RESULTS
-
-print(out['Research Group'].value_counts())
 
 #%% T1 REDUNDANCY REDUCTION
+
 dataset = pd.read_csv("./idaSearch_12_09_2021.csv")
+
 # How many image description types?
 descriptionTypes = np.unique(dataset['Description'])
-print(descriptionTypes)
+#print(descriptionTypes)
 
 # How many patients do we have?
 patientNum = np.unique(dataset['Subject ID'])
-print(len(patientNum))
+#print(len(patientNum))
 
 # Check if patients have MPRAGE or IR-FSPGR images
 contains_MPRAGE = dataset.loc[dataset['Description'].str.contains('MPRAGE')]
@@ -97,12 +104,48 @@ for sample, idx in zip(contains_IR_FSPGR['Subject ID'], range(0, len(contains_IR
         FSPGR_unique_idxs.append(contains_IR_FSPGR.index[idx])
 # There were 124 IR-FSPGR images in the dataset, we got 117 non-repeated occurrences
 # meaning that we discarded (124-117) images
-unique_ids = []
-for idx in MPRAGE_unique_idxs:
 
+#%% COMBINING BOTH DTI AND T1 RELATED FILTERINGS IN ONE
+out2 = []
+id_list = list(out['Subject ID'])
 
+"""Indexes are converted into ID numbers, and stored in out2"""
 
+for i in MPRAGE_unique_idxs:
+    out2.append(dataset['Subject ID'][i])
+    
+for i in FSPGR_unique_idxs:
+    out2.append(dataset['Subject ID'][i])
 
+"""Duplicated values from each list are erased. IDs that are not present in
+   both lists are alse deleted."""
+   
+l1 = []
+[l1.append(x) for x in id_list if x not in l1]
+l2 = []
+[l2.append(x) for x in out2 if x not in l2]
+        
+for ID in l1:
+    if ID not in l2:
+        l1.remove(ID) # l1 is the list of interest, which is equal to out
 
+a = out.duplicated(subset=['Subject ID'], keep='last')
+rows_to_delete = list(a.index[a==True])
+out.drop(rows_to_delete, inplace=True, axis='rows')
+
+""" Evaluation of the output"""
+
+print(out['Research Group'].value_counts())
+
+#%% DELETING UNWANTED SUBJECT FILES FROM STORAGE PATH
+
+path = "C:\\Users\\IMANOL\\Desktop\\MU\\" # must modify
+list_all = list(dataset['Subject ID'])
+
+# If the subject ID has not been selected, its directory will be deleted
+for subject in list_all:
+    if subject not in l1: 
+        shutil.rmtree(path+str(subject), ignore_errors=True)
+        print("Directory "+path+str(subject)+" was deleted.")
 
 
