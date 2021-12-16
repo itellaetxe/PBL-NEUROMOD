@@ -73,25 +73,48 @@ def signal2noise(a, axis=None, ddof=0):
 
 #%% Filtering every Nifty file to improve their SNR
 
-mydatadir = "C:\\Users\\IMANOL\\Desktop\\MU\\941_S_6854\\Accelerated_Sagittal_MPRAGE\\2020-02-14_11_53_08.0\\S924969\\example.nii"
+mydatadir = r"C:\Users\IMANOL\Desktop\TrialDir\TEST_PATIENTS_10_12_2021_T1_DTI_60-100y\ADNI"
+subject_list = os.listdir(mydatadir)
 
-data, _, _ = load_nifti(mydatadir, return_img=True) # affine and img are not necessary to filter data
-data = np.squeeze(data, axis=3) # Delete empty 4th dimension
-
-SNR_raw = []
-for sl in range(0, data.shape[2], 1):
-    SNR_tmp = signal2noise(data[:, :, sl], axis=None, ddof=0)
-    SNR_raw.append(float(SNR_tmp))
+path_list = []
+for subject in subject_list:
+    path_tmp = os.path.join(mydatadir, str(subject))
+    list_tmp = os.listdir(path_tmp)
     
-mask = generate_mask3D(data, 'constant')
-filtered_data = NL_means(data, mask)
-
-SNR_filtered = []
-for sl in range(0, filtered_data.shape[2], 1):
-    SNR_tmp = signal2noise(filtered_data[:, :, sl], axis=None, ddof=0)
-    SNR_filtered.append(float(SNR_tmp))
+    # At this point should be checked if the path-generating structure is adecuate for the data structure
+    path_tmp = os.path.join(path_tmp, str(list_tmp[0]))
+    list_tmp = os.listdir(path_tmp)
     
-SNR_improvement = [m - n for m, n in zip(SNR_raw, SNR_filtered)]
-print("Mean SNR of the data has been improved {} points.".format(np.mean(SNR_improvement)))
+    path_tmp = os.path.join(path_tmp, str(list_tmp[0]))
+    list_tmp = os.listdir(path_tmp)
+    
+    path_tmp = os.path.join(path_tmp, str(list_tmp[0]))
+    list_tmp = os.listdir(path_tmp)
+    
+    path_list.append(os.path.join(path_tmp, str(list_tmp[0])))
+        
+#path = "C:\\Users\\IMANOL\\Desktop\\MU\\941_S_6854\\Accelerated_Sagittal_MPRAGE\\2020-02-14_11_53_08.0\\S924969\\example.nii"
+
+for path, i in zip(path_list, range(0, len(subject_list), 1)):
+    
+    data, _, _ = load_nifti(path, return_img=True) # affine and img are not necessary to filter data
+    data = np.squeeze(data, axis=3) # Delete empty 4th dimension
+    
+    SNR_raw = []
+    for sl in range(0, data.shape[2], 1):
+        SNR_tmp = signal2noise(data[:, :, sl], axis=None, ddof=0)
+        SNR_raw.append(float(SNR_tmp))
+        
+    mask = generate_mask3D(data, 'constant')
+    filtered_data = NL_means(data, mask)
+    
+    SNR_filtered = []
+    for sl in range(0, filtered_data.shape[2], 1):
+        SNR_tmp = signal2noise(filtered_data[:, :, sl], axis=None, ddof=0)
+        SNR_filtered.append(float(SNR_tmp))
+        
+    print("----- Analysing subject {} -----".format(subject_list[i]))
+    SNR_improvement = [m - n for m, n in zip(SNR_raw, SNR_filtered)]
+    print("Mean SNR of the data has been improved {} points.".format(np.mean(SNR_improvement)))
     
 #plt.savefig('denoised.png', bbox_inches='tight')
