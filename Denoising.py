@@ -7,7 +7,7 @@ Created on Mon Dec 13 12:54:04 2021
 
 import os
 import numpy as np
-from dipy.io.image import load_nifti
+from dipy.io.image import load_nifti, save_nifti
 from dipy.denoise.noise_estimate import estimate_sigma
 from dipy.denoise.nlmeans import nlmeans
 from dipy.segment.mask import median_otsu
@@ -71,34 +71,34 @@ def signal2noise(a, axis=None, ddof=0):
     return np.where(sd == 0, 0, m/sd)
 
 
-#%% Filtering every Nifty file to improve their SNR
+#%% Filtering every Nifty file to improve their SNR following BIDS standard
 
-mydatadir = r"C:\Users\IMANOL\Desktop\TrialDir\TEST_PATIENTS_10_12_2021_T1_DTI_60-100y\ADNI"
+mydatadir = r"C:\Users\IMANOL\Desktop\my_dataset"
+data_type = "anat"
 subject_list = os.listdir(mydatadir)
 
 path_list = []
 for subject in subject_list:
+    
+    # Enter subject folder individually
     path_tmp = os.path.join(mydatadir, str(subject))
     list_tmp = os.listdir(path_tmp)
     
-    # At this point should be checked if the path-generating structure is adecuate for the data structure
-    path_tmp = os.path.join(path_tmp, str(list_tmp[0]))
+    # Enter data type of interest: "anat", "dti"
+    path_tmp = os.path.join(path_tmp, data_type)
     list_tmp = os.listdir(path_tmp)
     
-    path_tmp = os.path.join(path_tmp, str(list_tmp[0]))
-    list_tmp = os.listdir(path_tmp)
+    # Select image files (contain "nii")
+    file = [f for f in list_tmp if "nii" in f]
+    path_tmp = os.path.join(path_tmp, str(file[0]))
     
-    path_tmp = os.path.join(path_tmp, str(list_tmp[0]))
-    list_tmp = os.listdir(path_tmp)
-    
-    path_list.append(os.path.join(path_tmp, str(list_tmp[0])))
+    path_list.append(path_tmp)
         
-#path = "C:\\Users\\IMANOL\\Desktop\\MU\\941_S_6854\\Accelerated_Sagittal_MPRAGE\\2020-02-14_11_53_08.0\\S924969\\example.nii"
-
 for path, i in zip(path_list, range(0, len(subject_list), 1)):
     
-    data, _, _ = load_nifti(path, return_img=True) # affine and img are not necessary to filter data
-    data = np.squeeze(data, axis=3) # Delete empty 4th dimension
+    data, affine, _ = load_nifti(path, return_img=True) # img is not necessary to filter the data
+    if len(data.shape) > 3:
+        data = np.squeeze(data, axis=3) # Delete empty 4th dimension
     
     SNR_raw = []
     for sl in range(0, data.shape[2], 1):
@@ -117,4 +117,8 @@ for path, i in zip(path_list, range(0, len(subject_list), 1)):
     SNR_improvement = [m - n for m, n in zip(SNR_raw, SNR_filtered)]
     print("Mean SNR of the data has been improved {} points.".format(np.mean(SNR_improvement)))
     
-#plt.savefig('denoised.png', bbox_inches='tight')
+    out_path_tmp = os.path.dirname(path)
+    out_path_tmp = os.path.join(out_path_tmp, subject_list[i]+"_filtered")
+    
+    # This command saves the Nifti file in .nii format, not in .nii.gz
+    save_nifti(out_path_tmp, filtered_data, affine)
