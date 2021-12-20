@@ -74,7 +74,7 @@ def signal2noise(a, axis=None, ddof=0):
 #%% Filtering every Nifty file to improve their SNR following BIDS standard
 
 mydatadir = r"C:\Users\IMANOL\Desktop\my_dataset"
-data_type = "anat"
+data_type = "dti"
 subject_list = os.listdir(mydatadir)
 
 path_list = []
@@ -97,28 +97,31 @@ for subject in subject_list:
 for path, i in zip(path_list, range(0, len(subject_list), 1)):
     
     data, affine, _ = load_nifti(path, return_img=True) # img is not necessary to filter the data
-    if len(data.shape) > 3:
+    if data_type == "anat" and len(data.shape) > 3:
         data = np.squeeze(data, axis=3) # Delete empty 4th dimension
     
-    SNR_raw = []
-    for sl in range(0, data.shape[2], 1):
-        SNR_tmp = signal2noise(data[:, :, sl], axis=None, ddof=0)
-        SNR_raw.append(float(SNR_tmp))
+    out_filtered = np.zeros([data.shape[0], data.shape[1], data.shape[2], data.shape[3]])
+    for t_inst in range(0, data.shape[3], 1):
+        SNR_raw = []
+        for sl in range(0, data.shape[2], 1):
+            SNR_tmp = signal2noise(data[:, :, sl], axis=None, ddof=0)
+            SNR_raw.append(float(SNR_tmp))
+            
+        mask = generate_mask3D(data[:, :, :, t_inst], 'otsu')
+        filtered_tmp = NL_means(data[:, :, :, t_inst], mask)
         
-    mask = generate_mask3D(data, 'constant')
-    filtered_data = NL_means(data, mask)
+        SNR_filtered = []
+        for sl in range(0, filtered_tmp.shape[2], 1):
+            SNR_tmp = signal2noise(filtered_tmp[:, :, sl], axis=None, ddof=0)
+            SNR_filtered.append(float(SNR_tmp))
+            
+        print("----- Analysing subject {} -----".format(subject_list[i]))
+        SNR_improvement = [m - n for m, n in zip(SNR_raw, SNR_filtered)]
+        print("Mean SNR of the data has been improved {} points.".format(np.mean(SNR_improvement)))
     
-    SNR_filtered = []
-    for sl in range(0, filtered_data.shape[2], 1):
-        SNR_tmp = signal2noise(filtered_data[:, :, sl], axis=None, ddof=0)
-        SNR_filtered.append(float(SNR_tmp))
-        
-    print("----- Analysing subject {} -----".format(subject_list[i]))
-    SNR_improvement = [m - n for m, n in zip(SNR_raw, SNR_filtered)]
-    print("Mean SNR of the data has been improved {} points.".format(np.mean(SNR_improvement)))
-    
+        out_filtered[:, :, :, t_inst] = filtered_tmp
     out_path_tmp = os.path.dirname(path)
     out_path_tmp = os.path.join(out_path_tmp, subject_list[i]+"_filtered")
     
     # This command saves the Nifti file in .nii format, not in .nii.gz
-    save_nifti(out_path_tmp, filtered_data, affine)
+    save_nifti(out_path_tmp, out_filtered, affine)
