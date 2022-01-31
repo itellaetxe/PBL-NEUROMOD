@@ -1,40 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f052248c-e587-450d-964d-2f1606f05072" name="Changes" comment="">
+    <list default="true" id="075e29b8-108f-42a2-83a4-723abf213cd9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/connectivity_matrix_script.py" beforeDir="false" afterPath="$PROJECT_DIR$/connectivity_matrix_script.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Jupyter Notebook" />
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GitSEFilterConfiguration">
-    <file-type-list>
-      <filtered-out-file-type name="LOCAL_BRANCH" />
-      <filtered-out-file-type name="REMOTE_BRANCH" />
-      <filtered-out-file-type name="TAG" />
-      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
-    </file-type-list>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
-  </component>
-  <component name="ProjectId" id="23rZTScjUG0RRqNR33eAdC1tWqZ" />
+  <component name="ProjectId" id="23xaqSneao4SGfbB2sG20gM7lsk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -44,8 +26,8 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/miniconda3/envs/pblneuromod/lib/python3.8/site-packages/nibabel/streamlines/array_sequence.py" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.DirectoryMappings" />
+    <property name="last_opened_file_path" value="$USER_HOME$/VirtualEnvironments/venvPBL-NEUROMOD/Lib/site-packages/nibabel/streamlines/array_sequence.py" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RunManager" selected="Python.connectivity_matrix_script">
     <configuration name="connectivity_matrix_script" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -54,7 +36,7 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="$USER_HOME$/miniconda3/envs/pblneuromod/bin/python" />
+      <option name="SDK_HOME" value="C:\Users\Iñigo\VirtualEnvironments\venvPBL-NEUROMOD\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -71,7 +53,6 @@
       <method v="2" />
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <module name="ConnectivityMatrix_From_TRK" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -79,9 +60,10 @@
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
       <option name="PARAMETERS" value="" />
@@ -101,76 +83,36 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f052248c-e587-450d-964d-2f1606f05072" name="Changes" comment="" />
-      <created>1642494176461</created>
+      <changelist id="075e29b8-108f-42a2-83a4-723abf213cd9" name="Changes" comment="" />
+      <created>1642678382872</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1642494176461</updated>
-      <workItem from="1642494183026" duration="3509000" />
-      <workItem from="1642497808615" duration="4339000" />
-      <workItem from="1642517210523" duration="75000" />
-      <workItem from="1642580944857" duration="1543000" />
-      <workItem from="1642583465228" duration="7720000" />
-      <workItem from="1642596073517" duration="794000" />
-      <workItem from="1642596919442" duration="1242000" />
-      <workItem from="1642604087449" duration="3815000" />
-      <workItem from="1642667515476" duration="1234000" />
-      <workItem from="1642673719866" duration="766000" />
-      <workItem from="1642694602029" duration="19000" />
-      <workItem from="1642762209747" duration="2268000" />
-      <workItem from="1643021358242" duration="1125000" />
-      <workItem from="1643272062958" duration="10417000" />
-      <workItem from="1643283406068" duration="1451000" />
-      <workItem from="1643544716156" duration="786000" />
+      <updated>1642678382872</updated>
+      <workItem from="1642678384044" duration="2484000" />
+      <workItem from="1642693219329" duration="604000" />
+      <workItem from="1642751276088" duration="4559000" />
+      <workItem from="1643012372200" duration="3475000" />
+      <workItem from="1643117803821" duration="43000" />
+      <workItem from="1643550275875" duration="4134000" />
+      <workItem from="1643623898173" duration="183000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/miniconda3/envs/pblneuromod/lib/python3.8/site-packages/nibabel/streamlines/array_sequence.py</url>
-          <line>383</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/miniconda3/envs/pblneuromod/lib/python3.8/site-packages/nibabel/streamlines/array_sequence.py</url>
-          <line>384</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/miniconda3/envs/pblneuromod/lib/python3.8/site-packages/nibabel/streamlines/array_sequence.py</url>
-          <line>385</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>91</line>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/connectivity_matrix_script.py</url>
-          <line>21</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/connectivity_matrix_script.py</url>
-          <line>20</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
-          <url>notebook:///home/teitxe/PycharmProjects/ConnectivityMatrix_From_TRK/CMfromTRK.ipynb</url>
-          <line>1</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ConnectivityMatrix_From_TRK$main.coverage" NAME="main Coverage Results" MODIFIED="1643284355732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ConnectivityMatrix_From_TRK$connectivity_matrix_script.coverage" NAME="connectivity_matrix_script Coverage Results" MODIFIED="1643547576727" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ConnectivityMatrixFromTRK$connectivity_matrix_script.coverage" NAME="connectivity_matrix_script Coverage Results" MODIFIED="1643623964237" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
