@@ -19,4 +19,6 @@ M, grouping = utils.connectivity_matrix(tractogram.streamlines, tracks_affine,
                                         label_volume=atlas_img.astype(np.uint8),
                                         return_mapping=True, mapping_as_streamlines=True)
 plt.imshow(np.log1p(M), interpolation='nearest', cmap='seismic')
+plt.title('Connectivity matrix, Brainnetome Atlas, 246 regions (log scale)')
+plt.colorbar()
 plt.show()
