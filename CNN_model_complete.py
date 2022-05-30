@@ -3,14 +3,18 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 from imblearn.combine import SMOTETomek
 from scipy.io import loadmat
+import seaborn as sns
 
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Flatten
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.metrics import Precision, Recall
 from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.backend import clear_session
+import tensorflow as tf
 
 
 def load_all_ConnMats(base_path):
@@ -102,28 +106,35 @@ def cnn_model(parameters, x_train, y_train):
     return history, model
 
 
+np.random.seed(42)
+tf.random.set_seed(42)
+
 base_path = "D:/PROCESSED_ADNI_CONTROL_GROUP/results/"
 input_struct_NC = load_all_ConnMats(base_path)
 
 base_path = "D:/PROCESSED_ADNI_AD_GROUP/PROCESSED_AD_GROUP/"
 input_struct_AD = load_all_ConnMats(base_path)
 
-x_train = np.concatenate((input_struct_AD, input_struct_NC), axis=0)
+x_train = np.concatenate((input_struct_NC, input_struct_AD), axis=0)
 y_train = np.zeros((input_struct_NC.shape[0]+input_struct_AD.shape[0]))
 y_train[input_struct_NC.shape[0]:input_struct_NC.shape[0]+input_struct_AD.shape[0]] = 1
 
-base_path = "D:/TEST/"
-x_test = load_all_ConnMats(base_path)
+base_path = "D:/TEST/NC/"
+x_test_NC = load_all_ConnMats(base_path)
 
+base_path = "D:/TEST/AD/"
+x_test_AD = load_all_ConnMats(base_path)
+
+x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
 y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
 parameters = {'num_of_neurons': [128, 64, 32, 16],  # [layer0, layer1, layer2, ...]
               'dropout_vals': [0.5, 0.5, 0.5],
-              'batch_size': 64,  # 32, 64, 128, ...
+              'batch_size': 32,  # 32, 64, 128, ...
               'num_of_layers': 4,  # total = num_of_layers + 1
               'lr': 0.001,
               # 'sgd_momentum': 0.4371162594318422, # Just if SGD optimizer is selected
-              'epoch': 30,
+              'epoch': 300,
               'imbalanced': True}
 
 history, model = cnn_model(parameters, x_train, y_train)
@@ -136,18 +147,25 @@ plt.plot(history.history['val_loss'])
 plt.title('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='best')
-plt.show()
 plt.savefig(output_dir + 'loss')
+plt.show()
 
-plt.figure()
+# plt.figure()
 plt.plot(history.history['auc'])
 plt.plot(history.history['val_auc'])
 plt.title('AUC')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='best')
+plt.savefig(output_dir + 'AUC')
 plt.show()
 
 loss, accuracy, auc, pre, rec = model.evaluate(x_test, y_test, verbose=0)
+y_pred = model.predict(x_test, verbose=0)
+cm = confusion_matrix(y_test, np.round(y_pred))
+plt.figure()
+categories = ['NC', 'AD']
+sns.heatmap(cm, annot=True, cmap='Blues')
+plt.show()
 
 f = open(output_dir + 'testing_results.txt', 'w')
 print(f"Loss: {loss}\n"
@@ -163,3 +181,6 @@ print(f"Loss: {loss}\n"
       f"Precision: {pre}\n"
       f"Recall: {rec}\n")
 print("----------------------------------------------------------")
+
+clear_session()
+
