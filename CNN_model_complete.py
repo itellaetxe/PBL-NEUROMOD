@@ -10,7 +10,7 @@ from scipy.io import loadmat
 import seaborn as sns
 
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Flatten
+from tensorflow.keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Flatten, BatchNormalization
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.metrics import Precision, Recall
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -57,6 +57,11 @@ def cnn_model(parameters, x_train, y_train):
     model.add(Conv2D(neurons[3], kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
+    model.add(Conv2D(neurons[4], kernel_size=(3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    # model.add(BatchNormalization())
+
     model.add(Flatten())
     model.add(Dense(64))
 
@@ -82,7 +87,7 @@ def cnn_model(parameters, x_train, y_train):
 
     return history, model
 
-
+# Seed = 42
 np.random.seed(42)
 tf.random.set_seed(42)
 
@@ -105,14 +110,14 @@ x_test_AD = load_all_ConnMats(base_path)
 x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
 y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-parameters = {'num_of_neurons': [64, 64, 64, 16],  # [layer0, layer1, layer2, ...]
-              'dropout_vals': [0.5, 0.5, 0.5],
-              'batch_size': 8,  # 32, 64, 128, ...
-              'num_of_layers': 4,  # total = num_of_layers + 1
+parameters = {'num_of_neurons': [128, 64, 64, 32, 16],  # [layer0, layer1, layer2, ...]
+              # 'dropout_vals': [0.5, 0.5, 0.5],
+              'batch_size': 32,  # 32, 64, 128, ...
+              'num_of_layers': 5,  # total = num_of_layers + 1
               'lr': 0.001,
               # 'sgd_momentum': 0.4371162594318422, # Just if SGD optimizer is selected
-              'epoch': 30,
-              'imbalanced': False}
+              'epoch': 15,
+              'imbalanced': True}
 
 history, model = cnn_model(parameters, x_train, y_train)
 output_dir = './output_CNN/'
@@ -145,12 +150,12 @@ sns.heatmap(cm, annot=True, cmap='Blues')
 plt.savefig(output_dir + 'Conf_map')
 plt.show()
 
-f = open(output_dir + 'testing_results.txt', 'w')
-print(f"Loss: {loss}\n"
-      f"Accuracy: {accuracy}\n"
-      f"AUC: {auc}\n"
-      f"Precision: {pre}\n"
-      f"Recall: {rec}\n", file=f)
+# f = open(output_dir + 'testing_results.txt', 'w')
+# print(f"Loss: {loss}\n"
+#       f"Accuracy: {accuracy}\n"
+#       f"AUC: {auc}\n"
+#       f"Precision: {pre}\n"
+#       f"Recall: {rec}\n", file=f)
 
 print("\n------------------- EVALUATION RESULTS -------------------")
 print(f"Loss: {loss}\n"
@@ -179,6 +184,10 @@ csv_path = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/output_CNN/trials.csv"
 csv = pd.read_csv(csv_path)
 csv = pd.concat([csv, csv_tmp])
 csv.to_csv(csv_path, index=False)
+
+# 06/01/2022, 09:20:23 --> BatchNormalization layer added
+# 06/01/2022, 10:20:14 --> Random seed changed to 0
+# 06/01/2022, 10:23:25 --> Random seed changed to 7
 
 clear_session()
 
