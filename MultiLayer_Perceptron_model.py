@@ -1,11 +1,12 @@
 import pandas as pd
-from tensorflow.keras import Model
+from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.metrics import Precision, Recall
 from tensorflow.keras.callbacks import ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTETomek
+import matplotlib.pyplot as plt
 
 
 def mlp_model(parameters, x_train, y_train, x_test, y_test):
@@ -31,10 +32,10 @@ def mlp_model(parameters, x_train, y_train, x_test, y_test):
     dropouts = parameters['dropout_vals']
 
     # Build model architecture
-    model = Model.Sequential()
+    model = Sequential()
     model.add(Dense(neurons[0], input_shape=(input_variables,), activation='relu'))
 
-    for layer in range(0, len(parameters['num_of_layers']), 1):
+    for layer in range(0, parameters['num_of_layers'], 1):
         model.add(Dropout(dropouts[layer]))
         model.add(Dense(neurons[layer], activation='relu'))
 
@@ -61,25 +62,43 @@ def mlp_model(parameters, x_train, y_train, x_test, y_test):
 
     return history, model
 
+df_train = pd.read_csv("C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/train_weightCM_table.csv", encoding='latin1', delimiter=',')
+df_train['Label'].replace({'AD': 1, 'CN': 0}, inplace=True)
+df_test = pd.read_csv("C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/test_weightCM_table.csv", encoding='latin1', delimiter=',')
+df_test['Label'].replace({'AD': 1, 'CN': 0}, inplace=True)
 
-x_train = pd.read_csv('C:\\', encoding='latin1')
-y_train = pd.read_csv('C:\\', encoding='latin1')
-x_test = pd.read_csv('C:\\', encoding='latin1')
-y_test = pd.read_csv('C:\\', encoding='latin1')
+x_train = df_train[['EfficiencyW', 'MeanBetwennessW', 'MeanClustCoffW', 'MeanStrength', 'kDensity', 'TransitivityW']]
+y_train = df_train['Label']
+x_test = df_test[['EfficiencyW', 'MeanBetweennessW', 'MeanClustCoffW', 'MeanStrength', 'kDensity', 'TransitivityW']]
+y_test = df_test['Label']
 
-parameters = {'num_of_neurons': [32, 32],  # [layer0, layer1, layer2, ...]
+parameters = {'num_of_neurons': [16],  # [layer0, layer1, layer2, ...]
               'dropout_vals': [0.5, 0.5, 0.5],
-              'batch_size': 64,  # 32, 64, 128, ...
-              'num_of_layers': 2,  # total = num_of_layers + 1
-              'lr': 0.0001,
+              'batch_size': 8,  # 32, 64, 128, ...
+              'num_of_layers': 1,  # total = num_of_layers + 1
+              'lr': 0.001,
               # 'sgd_momentum': 0.4371162594318422, # Just if SGD optimizer is selected
-              'epoch': 5000,
+              'epoch': 700,
               'imbalanced': False}
 
 history, model = mlp_model(parameters, x_train, y_train, x_test, y_test)
 output_dir = './output_MLP/'
-model.save(output_dir + 'output_MLP_model.h5')
+# model.save(output_dir + 'output_MLP_model.h5')
 
-scores = pd.DataFrame()
-loss, accuracy, auc, pre, rec = model.evaluate(x_test, y_test, verbose=1)
+loss, accuracy, auc, pre, rec = model.evaluate(x_test, y_test, verbose=0)
+print("\n------------------- EVALUATION RESULTS -------------------")
+print(f"Loss: {loss}\n"
+      f"Accuracy: {accuracy}\n"
+      f"AUC: {auc}\n"
+      f"Precision: {pre}\n"
+      f"Recall: {rec}\n")
+print("----------------------------------------------------------")
 
+plt.figure()
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='best')
+plt.savefig(output_dir + 'loss')
+plt.show()
