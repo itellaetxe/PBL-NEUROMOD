@@ -47,7 +47,7 @@ def mlp_model(parameters, x_train, y_train, x_test, y_test):
                   loss='binary_crossentropy',
                   metrics=['accuracy', 'AUC', Precision(), Recall()])
 
-    mcp = ModelCheckpoint('.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
+    mcp = ModelCheckpoint(output_dir + '.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
 
     # Run model training
     print("------------------- TRAINING STARTED -------------------")
@@ -81,8 +81,8 @@ parameters = {'num_of_neurons': [16],  # [layer0, layer1, layer2, ...]
               'epoch': 700,
               'imbalanced': False}
 
-history, model = mlp_model(parameters, x_train, y_train, x_test, y_test)
 output_dir = './output_MLP/'
+history, model = mlp_model(parameters, x_train, y_train, x_test, y_test)
 # model.save(output_dir + 'output_MLP_model.h5')
 
 loss, accuracy, auc, pre, rec = model.evaluate(x_test, y_test, verbose=0)

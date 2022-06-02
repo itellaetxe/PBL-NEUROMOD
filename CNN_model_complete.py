@@ -1,12 +1,9 @@
-import os
-import re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from imblearn.combine import SMOTETomek
-from scipy.io import loadmat
 import seaborn as sns
 
 from tensorflow.keras import Sequential
@@ -51,14 +48,14 @@ def cnn_model(parameters, x_train, y_train):
     model.add(Conv2D(neurons[1], kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Conv2D(neurons[2], kernel_size=(3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-
-    model.add(Conv2D(neurons[3], kernel_size=(3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-
-    model.add(Conv2D(neurons[4], kernel_size=(3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    # model.add(Conv2D(neurons[2], kernel_size=(3, 3), activation='relu'))
+    # model.add(MaxPooling2D(pool_size=(2, 2)))
+    #
+    # model.add(Conv2D(neurons[3], kernel_size=(3, 3), activation='relu'))
+    # model.add(MaxPooling2D(pool_size=(2, 2)))
+    #
+    # model.add(Conv2D(neurons[4], kernel_size=(3, 3), activation='relu'))
+    # model.add(MaxPooling2D(pool_size=(2, 2)))
 
     # model.add(BatchNormalization())
 
@@ -72,7 +69,7 @@ def cnn_model(parameters, x_train, y_train):
                   loss='binary_crossentropy',
                   metrics=['accuracy', 'AUC', Precision(), Recall()])
 
-    mcp = ModelCheckpoint('.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
+    mcp = ModelCheckpoint(output_dir + '.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
 
     # Run model training
     print("------------------- TRAINING STARTED -------------------")
@@ -90,37 +87,38 @@ def cnn_model(parameters, x_train, y_train):
 # Seed = 42
 np.random.seed(42)
 tf.random.set_seed(42)
+method = 'weighted'
 
 base_path = "D:/PROCESSED_ADNI_CONTROL_GROUP/results/"
-input_struct_NC = load_all_ConnMats(base_path)
+input_struct_NC = load_all_ConnMats(base_path, method)
 
 base_path = "D:/PROCESSED_ADNI_AD_GROUP/PROCESSED_AD_GROUP/"
-input_struct_AD = load_all_ConnMats(base_path)
+input_struct_AD = load_all_ConnMats(base_path, method)
 
 x_train = np.concatenate((input_struct_NC, input_struct_AD), axis=0)
 y_train = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
 y_train[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
 
 base_path = "D:/TEST/NC/"
-x_test_NC = load_all_ConnMats(base_path)
+x_test_NC = load_all_ConnMats(base_path, method)
 
 base_path = "D:/TEST/AD/"
-x_test_AD = load_all_ConnMats(base_path)
+x_test_AD = load_all_ConnMats(base_path, method)
 
 x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
 y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-parameters = {'num_of_neurons': [128, 64, 64, 32, 16],  # [layer0, layer1, layer2, ...]
+parameters = {'num_of_neurons': [32, 16],  # [layer0, layer1, layer2, ...]
               # 'dropout_vals': [0.5, 0.5, 0.5],
-              'batch_size': 32,  # 32, 64, 128, ...
-              'num_of_layers': 5,  # total = num_of_layers + 1
+              'batch_size': 8,  # 32, 64, 128, ...
+              'num_of_layers': 2,  # total = num_of_layers + 1
               'lr': 0.001,
               # 'sgd_momentum': 0.4371162594318422, # Just if SGD optimizer is selected
-              'epoch': 15,
-              'imbalanced': True}
+              'epoch': 30,
+              'imbalanced': False}
 
-history, model = cnn_model(parameters, x_train, y_train)
 output_dir = './output_CNN/'
+history, model = cnn_model(parameters, x_train, y_train)
 # model.save(output_dir + 'output_CNN_model.h5')
 
 plt.figure()
@@ -175,7 +173,8 @@ csv_tmp = pd.DataFrame({'Datetime': [datetime.now().strftime("%m/%d/%Y, %H:%M:%S
                         'Acc': [accuracy],
                         'AUC': [auc],
                         'Pre': [pre],
-                        'Rec': [rec]})
+                        'Rec': [rec],
+                        'method': method})
 
 # trials=pd.DataFrame(columns=['Datetime', 'num_of_neurons', 'batch_size', 'lr', 'epoch', 'imbalanced', 'Loss', 'Acc', 'AUC', 'Pre', 'Rec'])
 # trials.to_csv("trials.csv", index=False)
