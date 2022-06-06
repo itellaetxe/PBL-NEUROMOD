@@ -50,7 +50,7 @@ def cnn_model(parameters, x_train, y_train):
 
     # model.add(Conv2D(neurons[2], kernel_size=(3, 3), activation='relu'))
     # model.add(MaxPooling2D(pool_size=(2, 2)))
-    #
+    # #
     # model.add(Conv2D(neurons[3], kernel_size=(3, 3), activation='relu'))
     # model.add(MaxPooling2D(pool_size=(2, 2)))
     #
@@ -87,7 +87,8 @@ def cnn_model(parameters, x_train, y_train):
 # Seed = 42
 np.random.seed(42)
 tf.random.set_seed(42)
-method = 'weighted'
+method = 'raw'
+comments = 'Trained with 70/30 split & raw CM'
 
 base_path = "D:/PROCESSED_ADNI_CONTROL_GROUP/results/"
 input_struct_NC = load_all_ConnMats(base_path, method)
@@ -106,15 +107,17 @@ base_path = "D:/TEST/AD/"
 x_test_AD = load_all_ConnMats(base_path, method)
 
 x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
-y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+# y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+y_test = np.zeros((x_test_NC.shape[0] + x_test_AD.shape[0]))
+y_test[x_test_NC.shape[0]:x_test_NC.shape[0] + x_test_AD.shape[0]] = 1
 
-parameters = {'num_of_neurons': [32, 16],  # [layer0, layer1, layer2, ...]
+parameters = {'num_of_neurons': [16, 8],  # [layer0, layer1, layer2, ...]
               # 'dropout_vals': [0.5, 0.5, 0.5],
               'batch_size': 8,  # 32, 64, 128, ...
               'num_of_layers': 2,  # total = num_of_layers + 1
               'lr': 0.001,
               # 'sgd_momentum': 0.4371162594318422, # Just if SGD optimizer is selected
-              'epoch': 30,
+              'epoch': 50,
               'imbalanced': False}
 
 output_dir = './output_CNN/'
@@ -174,7 +177,8 @@ csv_tmp = pd.DataFrame({'Datetime': [datetime.now().strftime("%m/%d/%Y, %H:%M:%S
                         'AUC': [auc],
                         'Pre': [pre],
                         'Rec': [rec],
-                        'method': method})
+                        'method': method,
+                        'comments': comments})
 
 # trials=pd.DataFrame(columns=['Datetime', 'num_of_neurons', 'batch_size', 'lr', 'epoch', 'imbalanced', 'Loss', 'Acc', 'AUC', 'Pre', 'Rec'])
 # trials.to_csv("trials.csv", index=False)

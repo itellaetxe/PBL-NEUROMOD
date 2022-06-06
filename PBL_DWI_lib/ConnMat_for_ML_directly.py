@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.decomposition import PCA
 from PBL_DWI_lib.load_all_ConnMats import *
+from PBL_DWI_lib.number2parcel import *
 import matplotlib.pyplot as plt
 
 
@@ -20,8 +21,18 @@ class Cm4ml:
 
         col_sums = np.sum(df_new, axis=0)
         ind = np.argpartition(col_sums, kth=-self.num_of_parcels)[-self.num_of_parcels:]
+        print(ind)
 
         return df_new[:, ind]
+
+    def get_most_connected_parcels(self, num_of_components):
+        sum_mat = np.squeeze(np.sum(self.numpy_4d_mat, axis=0), axis=2)
+        sum_list = np.sum(sum_mat, axis=0)
+
+        idx = (-sum_list).argsort()[:num_of_components]
+        [print(f"{get_names_dict.get(i)}") for i in idx]
+
+        return idx
 
     def pca_from_rearanged(self, num_of_components, scree):
         df_new = np.zeros((self.numpy_4d_mat.shape[0], self.numpy_4d_mat.shape[1] * self.numpy_4d_mat.shape[2]))
@@ -46,9 +57,9 @@ class Cm4ml:
         var_explainability = pca.explained_variance_ratio_
         cum_sum_eigenvalues = np.cumsum(var_explainability)
 
-        for eigenvalue, eigenvector in zip(eigenvalues, pca.components_):
+        # for eigenvalue, eigenvector in zip(eigenvalues, pca.components_):
             # print(np.dot(eigenvector.T, np.dot(cov_matrix, eigenvector)))
-            print(eigenvalue)
+            # print(eigenvalue)
 
         if scree is True:
             thr = 0.9
@@ -81,6 +92,8 @@ y_train = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
 y_train[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
 
 trial = Cm4ml(x_train, 50)
-trial2 = trial.rearange_ConnMats()
-trial3 = trial.pca_from_rearanged(num_of_components=25, scree=True)
+# trial2 = trial.rearange_ConnMats()
+# trial3 = trial.pca_from_rearanged(num_of_components=25, scree=True)
+trial4 = trial.get_most_connected_parcels(50)
 print("")
+

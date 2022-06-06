@@ -9,14 +9,14 @@ from sklearn.naive_bayes import GaussianNB
 
 output_dir = "./output_ML/"
 
-path_to_train = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/train_weightCM_table.csv"
+path_to_train = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/n50_train_weightCM_table.csv"
 df_train = pd.read_csv(path_to_train, encoding='latin1', delimiter=',')
-x_train = np.array(df_train[['EfficiencyW', 'MeanBetwennessW', 'MeanClustCoffW', 'MeanStrength', 'kDensity', 'TransitivityW']])
+x_train = np.array(df_train[['EfficiencyW', 'MeanBetweennessW', 'MeanClustCoffW', 'MeanStrength', 'kDensity']])
 y_train = np.array(df_train['Label'])
 
-path_to_test = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/test_weightCM_table.csv"
+path_to_test = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/n50test_weightCM_table.csv"
 df_test = pd.read_csv(path_to_test, encoding='latin1', delimiter=',')
-x_test = np.array(df_test[['EfficiencyW', 'MeanBetweennessW', 'MeanClustCoffW', 'MeanStrength', 'kDensity', 'TransitivityW']])
+x_test = np.array(df_test[['EfficiencyW', 'MeanBetweennessW', 'MeanClustCoffW', 'MeanStrength', 'kDensity']])
 y_test = np.array(df_test['Label'])
 
 
