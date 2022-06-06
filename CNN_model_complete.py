@@ -88,23 +88,27 @@ def cnn_model(parameters, x_train, y_train):
 np.random.seed(42)
 tf.random.set_seed(42)
 method = 'raw'
-comments = 'Trained with 70/30 split & raw CM'
+comments = 'Trained with 70/30 split & raw CM & check test data is unseen'
 
 base_path = "D:/PROCESSED_ADNI_CONTROL_GROUP/results/"
-input_struct_NC = load_all_ConnMats(base_path, method)
+input_struct_NC, subs_NC = load_all_ConnMats(base_path, method)
 
 base_path = "D:/PROCESSED_ADNI_AD_GROUP/PROCESSED_AD_GROUP/"
-input_struct_AD = load_all_ConnMats(base_path, method)
+input_struct_AD, subs_AD = load_all_ConnMats(base_path, method)
+
+subs_train = subs_NC + subs_AD
 
 x_train = np.concatenate((input_struct_NC, input_struct_AD), axis=0)
 y_train = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
 y_train[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
 
 base_path = "D:/TEST/NC/"
-x_test_NC = load_all_ConnMats(base_path, method)
+x_test_NC, subs_NC = load_all_ConnMats(base_path, method)
 
 base_path = "D:/TEST/AD/"
-x_test_AD = load_all_ConnMats(base_path, method)
+x_test_AD, subs_AD = load_all_ConnMats(base_path, method)
+
+subs_test = subs_NC + subs_AD
 
 x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
 # y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
@@ -121,7 +125,10 @@ parameters = {'num_of_neurons': [16, 8],  # [layer0, layer1, layer2, ...]
               'imbalanced': False}
 
 output_dir = './output_CNN/'
-history, model = cnn_model(parameters, x_train, y_train)
+if len(set(subs_test).intersection(subs_train)) == 0:
+    history, model = cnn_model(parameters, x_train, y_train)
+else:
+    raise Exception("Training data is repeated in the testing set.")
 # model.save(output_dir + 'output_CNN_model.h5')
 
 plt.figure()

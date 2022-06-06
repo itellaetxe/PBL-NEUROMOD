@@ -31,4 +31,4 @@ def load_all_ConnMats(base_path, method):
         elif method == 'upper_raw':
             input_struct[cnt, :, :, 0] = np.triu(tmp_mat)
 
-    return input_struct
+    return input_struct, filtered
