@@ -141,6 +141,8 @@ for val in range(0, int(parcel_vals[-1])):
     region_fa_means.append(np.mean(fa[region]))
 
 # If we want regions in pairs (region 0 is just background!):
-for val in range(1, parcel_vals[-1], 2):
+region_pair_fa_means = []
+for val in range(1, int(parcel_vals[-1]), 2):
     region = np.logical_or(atlas_warped == val, atlas_warped == val+1)
-    region_fa_vals = fa[region]
+    region_pair_fa_means.append(np.mean(fa[region]))
+
