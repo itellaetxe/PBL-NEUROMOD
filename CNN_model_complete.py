@@ -38,7 +38,6 @@ def cnn_model(parameters, x_train, y_train):
         xtr = np.reshape(xtr_res, newshape=(xtr_res.shape[0], 247, 247, 1))
 
     neurons = parameters['num_of_neurons']
-    # dropouts = parameters['dropout_vals']
 
     # Build model architecture
     model = Sequential()
@@ -57,6 +56,7 @@ def cnn_model(parameters, x_train, y_train):
     # model.add(Conv2D(neurons[4], kernel_size=(3, 3), activation='relu'))
     # model.add(MaxPooling2D(pool_size=(2, 2)))
 
+    # Adding batch normalization layer
     # model.add(BatchNormalization())
 
     model.add(Flatten())
@@ -69,7 +69,8 @@ def cnn_model(parameters, x_train, y_train):
                   loss='binary_crossentropy',
                   metrics=['accuracy', 'AUC', Precision(), Recall()])
 
-    mcp = ModelCheckpoint(output_dir + '.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
+    # Only the best model throughout the training will be stored
+    mcp = ModelCheckpoint(OUTPUT_DIR + '.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
 
     # Run model training
     print("------------------- TRAINING STARTED -------------------")
@@ -84,17 +85,22 @@ def cnn_model(parameters, x_train, y_train):
 
     return history, model
 
+OUTPUT_DIR = './output_CNN/'
+METHOD = 'raw'
+
 # Seed = 42
 np.random.seed(42)
 tf.random.set_seed(42)
-method = 'raw'
-comments = 'Trained with 70/30 split & raw CM & check test data is unseen'
+
+# Loading the data
+
+comments = 'Different testing batch selected'
 
 base_path = "D:/PROCESSED_ADNI_CONTROL_GROUP/results/"
-input_struct_NC, subs_NC = load_all_ConnMats(base_path, method)
+input_struct_NC, subs_NC = load_all_ConnMats(base_path, METHOD)
 
 base_path = "D:/PROCESSED_ADNI_AD_GROUP/PROCESSED_AD_GROUP/"
-input_struct_AD, subs_AD = load_all_ConnMats(base_path, method)
+input_struct_AD, subs_AD = load_all_ConnMats(base_path, METHOD)
 
 subs_train = subs_NC + subs_AD
 
@@ -103,10 +109,10 @@ y_train = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
 y_train[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
 
 base_path = "D:/TEST/NC/"
-x_test_NC, subs_NC = load_all_ConnMats(base_path, method)
+x_test_NC, subs_NC = load_all_ConnMats(base_path, METHOD)
 
 base_path = "D:/TEST/AD/"
-x_test_AD, subs_AD = load_all_ConnMats(base_path, method)
+x_test_AD, subs_AD = load_all_ConnMats(base_path, METHOD)
 
 subs_test = subs_NC + subs_AD
 
@@ -124,8 +130,7 @@ parameters = {'num_of_neurons': [16, 8],  # [layer0, layer1, layer2, ...]
               'epoch': 50,
               'imbalanced': False}
 
-output_dir = './output_CNN/'
-if len(set(subs_test).intersection(subs_train)) == 0:
+if len(set(subs_test).intersection(subs_train)) == 0:  # Check that testing data is not also being used for training
     history, model = cnn_model(parameters, x_train, y_train)
 else:
     raise Exception("Training data is repeated in the testing set.")
@@ -137,7 +142,7 @@ plt.plot(history.history['val_loss'])
 plt.title('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='best')
-plt.savefig(output_dir + 'loss')
+plt.savefig(OUTPUT_DIR + 'loss')
 plt.show()
 
 # plt.figure()
@@ -146,7 +151,7 @@ plt.plot(history.history['val_auc'])
 plt.title('AUC')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='best')
-plt.savefig(output_dir + 'AUC')
+plt.savefig(OUTPUT_DIR + 'AUC')
 plt.show()
 
 loss, accuracy, auc, pre, rec = model.evaluate(x_test, y_test, verbose=0)
@@ -155,7 +160,7 @@ cm = confusion_matrix(y_test, np.round(y_pred))
 plt.figure()
 categories = ['NC', 'AD']
 sns.heatmap(cm, annot=True, cmap='Blues')
-plt.savefig(output_dir + 'Conf_map')
+plt.savefig(OUTPUT_DIR + 'Conf_map')
 plt.show()
 
 # f = open(output_dir + 'testing_results.txt', 'w')
@@ -184,12 +189,14 @@ csv_tmp = pd.DataFrame({'Datetime': [datetime.now().strftime("%m/%d/%Y, %H:%M:%S
                         'AUC': [auc],
                         'Pre': [pre],
                         'Rec': [rec],
-                        'method': method,
+                        'method': METHOD,
                         'comments': comments})
 
-# trials=pd.DataFrame(columns=['Datetime', 'num_of_neurons', 'batch_size', 'lr', 'epoch', 'imbalanced', 'Loss', 'Acc', 'AUC', 'Pre', 'Rec'])
+# trials=pd.DataFrame(columns=['Datetime', 'num_of_neurons', 'batch_size', 'lr', 'epoch',
+# 'imbalanced', 'Loss', 'Acc', 'AUC', 'Pre', 'Rec'])
 # trials.to_csv("trials.csv", index=False)
 
+# Add the training metrics and parameters to the csv in order to keep track of them
 csv_path = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/output_CNN/trials.csv"
 csv = pd.read_csv(csv_path)
 csv = pd.concat([csv, csv_tmp])

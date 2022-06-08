@@ -70,7 +70,7 @@ def cnn_model(parameters, xtr, ytr, xval, yval):
                   loss='binary_crossentropy',
                   metrics=['accuracy', 'AUC', Precision(), Recall()])
 
-    mcp = ModelCheckpoint(output_dir + '.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
+    mcp = ModelCheckpoint(OUTPUT_DIR + '.mdl.wts.hdf5', save_best_only=True, monitor='val_loss', mode='min')
 
     # Run model training
     print("------------------- TRAINING STARTED -------------------")
@@ -88,29 +88,32 @@ def cnn_model(parameters, xtr, ytr, xval, yval):
 # Seed = 42
 np.random.seed(42)
 tf.random.set_seed(42)
-method = 'raw'
-comments = 'Crossvalidated'
+METHOD = 'weighted'
+comments = 'Crossvalidated-L1O with weighted data'
 
 base_path = "D:/PROCESSED_ADNI_CONTROL_GROUP/results/"
-input_struct_NC = load_all_ConnMats(base_path, method)
+input_struct_NC, subs_NC = load_all_ConnMats(base_path, METHOD)
 
 base_path = "D:/PROCESSED_ADNI_AD_GROUP/PROCESSED_AD_GROUP/"
-input_struct_AD = load_all_ConnMats(base_path, method)
+input_struct_AD, subs_AD = load_all_ConnMats(base_path, METHOD)
 
-x_train = np.concatenate((input_struct_NC, input_struct_AD), axis=0)
-y_train = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
-y_train[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
+subs_train = subs_NC + subs_AD
 
-base_path = "D:/TEST/NC/"
-x_test_NC = load_all_ConnMats(base_path, method)
+x_train_all = np.concatenate((input_struct_NC, input_struct_AD), axis=0)
+y_train_all = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
+y_train_all[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
 
-base_path = "D:/TEST/AD/"
-x_test_AD = load_all_ConnMats(base_path, method)
-
-x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
-# y_test = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
-y_test = np.zeros((x_test_NC.shape[0] + x_test_AD.shape[0]))
-y_test[x_test_NC.shape[0]:x_test_NC.shape[0] + x_test_AD.shape[0]] = 1
+# base_path = "D:/TEST/NC/"
+# x_test_NC, subs_NC = load_all_ConnMats(base_path, METHOD)
+#
+# base_path = "D:/TEST/AD/"
+# x_test_AD, subs_AD = load_all_ConnMats(base_path, METHOD)
+#
+# subs_test = subs_NC + subs_AD
+#
+# x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
+# y_test = np.zeros((x_test_NC.shape[0] + x_test_AD.shape[0]))
+# y_test[x_test_NC.shape[0]:x_test_NC.shape[0] + x_test_AD.shape[0]] = 1
 
 parameters = {'num_of_neurons': [16, 8],  # [layer0, layer1, layer2, ...]
               # 'dropout_vals': [0.5, 0.5, 0.5],
@@ -121,14 +124,26 @@ parameters = {'num_of_neurons': [16, 8],  # [layer0, layer1, layer2, ...]
               'epoch': 30,
               'imbalanced': False}
 
-output_dir = './output_CNN/'
-n_folds = 5
+OUTPUT_DIR = './output_CNN/'
+TOTAL_SUBS = x_train_all.shape[0]
+N_FOLDS = x_train_all.shape[0]
 model_history = []
 df = pd.DataFrame()
 
-for i in range(n_folds):
-    print("Training on Fold: ",i+1)
-    x_train, val_x, y_train, val_y = train_test_split(x_train, y_train, test_size=np.round(95/5)/100, random_state=np.random.randint(1, 1000, 1)[0])
+for i in range(TOTAL_SUBS):
+    print("Training on Fold: ", i+1)
+    x_train = x_train_all
+    y_train = y_train_all
+
+    x_test = x_train[i, :, :, :]
+    x_test = np.expand_dims(x_test, axis=0)
+    x_train = np.delete(x_train, i, axis=0)
+    y_test = y_train[i]
+    y_test = np.array([y_test])
+    y_train = np.delete(y_train, i, axis=0)
+
+    x_train, val_x, y_train, val_y = train_test_split(x_train, y_train, test_size=0.3, random_state=42)
+
     history, model = cnn_model(parameters, x_train, y_train, val_x, val_y)
     model_history.append(history)
 
@@ -140,68 +155,65 @@ for i in range(n_folds):
     df.loc[i, 'Precision'] = pre
     df.loc[i, 'Recall'] = rec
 
-color = cm.rainbow(np.linspace(0, 1, n_folds))
+print(df)
+
+color = cm.rainbow(np.linspace(0, 1, N_FOLDS))
 
 plt.figure()
 plt.title('Test Loss')
-for i, c in zip(range(n_folds), color):
+for i, c in zip(range(N_FOLDS), color):
     plt.plot(model_history[i].history['val_loss'], label=f'Test Fold {i+1}', linestyle='--', color=c)
-plt.legend()
-# plt.show()
+plt.xlabel('Epoch')
+plt.savefig(OUTPUT_DIR + 'Test_loss_L1O')
 
 plt.figure()
 plt.title('Train Loss')
-for i, c in zip(range(n_folds), color):
+for i, c in zip(range(N_FOLDS), color):
     plt.plot(model_history[i].history['loss'], label=f'Training Fold {i+1}', color=c)
-plt.legend()
-# plt.show()
+plt.xlabel('Epoch')
+plt.savefig(OUTPUT_DIR + 'Train_loss_L1O')
 
 plt.figure()
 plt.title('Train AUC')
-for i, c in zip(range(n_folds), color):
+for i, c in zip(range(N_FOLDS), color):
     plt.plot(model_history[i].history['auc'], label=f'Training Fold {i+1}', color=c)
-plt.legend()
-# plt.show()
+plt.xlabel('Epoch')
+plt.savefig(OUTPUT_DIR + 'Train_AUC_L1O')
 
 plt.figure()
 plt.title('Test AUC')
-for i, c in zip(range(n_folds), color):
+for i, c in zip(range(N_FOLDS), color):
     plt.plot(model_history[i].history['val_auc'], label=f'Test Fold {i+1}', linestyle='--', color=c)
-plt.legend()
+plt.xlabel('Epoch')
+plt.savefig(OUTPUT_DIR + 'Test_AUC_L1O')
 plt.show()
 
-df.loc[n_folds, 'Loss'] = np.mean(df['Loss'])
-df.loc[n_folds, 'AUC'] = np.mean(df['AUC'])
-df.loc[n_folds, 'accuracy'] = np.mean(df['accuracy'])
-df.loc[n_folds, 'Precision'] = np.mean(df['Precision'])
-df.loc[n_folds, 'Recall'] = np.mean(df['Recall'])
-print('#### VALIDATION RESULTS (final row is mean) ####')
-print(df)
+print("***\nMEAN VALUES\n***", end="\n\n\n")
+print(f"Loss: {np.mean(df['Loss'])}")
+print(f"AUC: {np.mean(df['AUC'])}")
+print(f"Accuracy: {np.mean(df['accuracy'])}")
+print(f"Precision: {np.mean(df['Precision'])}")
+print(f"Recall: {np.mean(df['Recall'])}")
 
-# model.save(output_dir + 'output_CNN_model.h5')
+csv_tmp = pd.DataFrame({'Datetime': [datetime.now().strftime("%m/%d/%Y, %H:%M:%S")],
+                        'num_of_neurons': [str(parameters['num_of_neurons'])],
+                        'batch_size': [parameters['batch_size']],
+                        'lr': [parameters['lr']],
+                        'epoch': [parameters['epoch']],
+                        'imbalanced': [parameters['imbalanced']],
+                        'Loss': [np.mean(df['Loss'])],
+                        'Acc': [np.mean(df['accuracy'])],
+                        'AUC': [np.mean(df['AUC'])],
+                        'Pre': [np.mean(df['Precision'])],
+                        'Rec': [np.mean(df['Recall'])],
+                        'method': METHOD,
+                        'comments': comments})
 
-# y_pred = model.predict(x_test, verbose=0)
-# cm = confusion_matrix(y_test, np.round(y_pred))
-# plt.figure()
-# categories = ['NC', 'AD']
-# sns.heatmap(cm, annot=True, cmap='Blues')
-# plt.savefig(output_dir + 'Conf_map')
-# plt.show()
-#
-# csv_tmp = pd.DataFrame({'Datetime': [datetime.now().strftime("%m/%d/%Y, %H:%M:%S")],
-#                         'num_of_neurons': [str(parameters['num_of_neurons'])],
-#                         'batch_size': [parameters['batch_size']],
-#                         'lr': [parameters['lr']],
-#                         'epoch': [parameters['epoch']],
-#                         'imbalanced': [parameters['imbalanced']],
-#                         'Loss': [loss],
-#                         'Acc': [accuracy],
-#                         'AUC': [auc],
-#                         'Pre': [pre],
-#                         'Rec': [rec],
-#                         'method': method,
-#                         'comments': comments})
-#
+# Add the training metrics and parameters to the csv in order to keep track of them
+csv_path = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/output_CNN/trials.csv"
+csv = pd.read_csv(csv_path)
+csv = pd.concat([csv, csv_tmp])
+csv.to_csv(csv_path, index=False)
 
 clear_session()
 
