@@ -72,7 +72,9 @@ for (region in regions) {
 fdr_corrected_fa_dual <- p.adjust(pvals_fa_dual, method="fdr", n=length(pvals_fa_dual))
 bonf_corrected_fa_dual <- p.adjust(pvals_fa_dual, method="bonferroni", n=length(pvals_fa_dual))
 
-regions[fdr_corrected_fa_dual<0.05]
+regstowrite <- regions[fdr_corrected_fa_dual<0.05]
+write.table(regstowrite, file="FA_dual_regs_FDR_0p05.txt", col.names=FALSE, row.names=FALSE)
+write.table(FA_dual_region_df, file="FA_dual.txt", sep=",", row.names=FALSE)
 
 #### MD (paired regions) ####
 folder <- dirs[1]
@@ -125,6 +127,9 @@ bonf_corrected_md_dual <- p.adjust(pvals_md_dual, method="bonferroni", n=length(
 
 regions[fdr_corrected_md_dual<0.05]
 
+regstowrite <- regions[fdr_corrected_md_dual<0.05]
+write.table(regstowrite, file="MD_dual_regs_FDR_0p05.txt", col.names=FALSE, row.names=FALSE)
+write.table(MD_dual_region_df, file="MD_dual.txt", sep=",", row.names=FALSE)
 
 #### FA (individual regions) ####
 folder <- dirs[1]
@@ -178,6 +183,9 @@ bonf_corrected_fa_indiv <- p.adjust(pvals_fa_indiv, method="bonferroni", n=lengt
 regions[fdr_corrected_fa_indiv<0.05]
 regions[bonf_corrected_fa_indiv<0.05]
 
+regstowrite <- regions[fdr_corrected_fa_indiv<0.05]
+write.table(regstowrite, file="FA_indiv_regs_FDR_0p05.txt", col.names=FALSE, row.names=FALSE)
+write.table(FA_region_df, file="FA_indiv.txt", sep=",", row.names=FALSE)
 
 #### MD (individual regions) ####
 folder <- dirs[1]
@@ -230,4 +238,36 @@ bonf_corrected_md_indiv <- p.adjust(pvals_md_indiv, method="bonferroni", n=lengt
 
 regions[fdr_corrected_md_indiv<0.05]
 regions[bonf_corrected_md_indiv<0.05]
+
+regstowrite <- regions[fdr_corrected_md_indiv<0.05]
+write.table(regstowrite, file="MD_indiv_regs_FDR_0p05.txt", col.names=FALSE, row.names=FALSE)
+write.table(MD_region_df, file="MD_indiv.txt", sep=",", row.names=FALSE)
+
+#### PCA OF FA DUAL ####
+library(FactoMineR)
+library(factoextra)
+FA_dual_region_df.pca <- PCA(FA_dual_region_df[,1:(ncol(FA_dual_region_df)-1)], scale.unit=TRUE, ncp=ncol(FA_dual_region_df)-1)
+par(c(1,2))
+fviz_pca_ind(FA_dual_region_df.pca, geom.ind="point",
+             col.ind= "#FC4E07", axes=c(1,2),
+             pointsize= 1.5)
+fviz_screeplot(FA_dual_region_df.pca, addlabels=TRUE)
+FA_dual_pca <- prcomp(FA_dual_region_df, scale=TRUE, center=TRUE)
+EVP <- 100*FA_dual_pca$sdev^2/sum(FA_dual_pca$sdev^2)
+plot(cumsum(EVP), type="o", xlab="PC", ylab="Cummulative EV",
+     col="blue", main="Explained cumulative variance, dual region FA")
+
+
+#### PCA OF FA INDIVIDUAL ####
+FA_region_df.pca <- PCA(FA_region_df[,1:(ncol(FA_region_df)-1)], scale.unit=TRUE, ncp=ncol(FA_dual_region_df)-1)
+par(c(1,2))
+fviz_pca_ind(FA_region_df.pca, geom.ind="point",
+             col.ind= "#FC4E07", axes=c(1,2),
+             pointsize= 1.5)
+fviz_screeplot(FA_region_df.pca, addlabels=TRUE)
+FA_pca <- prcomp(FA_region_df, scale=TRUE, center=TRUE)
+EVP <- 100*FA_pca$sdev^2/sum(FA_pca$sdev^2)
+plot(cumsum(EVP), type="o", xlab="PC", ylab="Cummulative EV",
+     col="blue", main="Explained cumulative variance, dual region FA")
+
 
