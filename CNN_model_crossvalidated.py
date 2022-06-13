@@ -103,18 +103,6 @@ x_train_all = np.concatenate((input_struct_NC, input_struct_AD), axis=0)
 y_train_all = np.zeros((input_struct_NC.shape[0] + input_struct_AD.shape[0]))
 y_train_all[input_struct_NC.shape[0]:input_struct_NC.shape[0] + input_struct_AD.shape[0]] = 1
 
-# base_path = "D:/TEST/NC/"
-# x_test_NC, subs_NC = load_all_ConnMats(base_path, METHOD)
-#
-# base_path = "D:/TEST/AD/"
-# x_test_AD, subs_AD = load_all_ConnMats(base_path, METHOD)
-#
-# subs_test = subs_NC + subs_AD
-#
-# x_test = np.concatenate((x_test_NC, x_test_AD), axis=0)
-# y_test = np.zeros((x_test_NC.shape[0] + x_test_AD.shape[0]))
-# y_test[x_test_NC.shape[0]:x_test_NC.shape[0] + x_test_AD.shape[0]] = 1
-
 parameters = {'num_of_neurons': [16, 8],  # [layer0, layer1, layer2, ...]
               # 'dropout_vals': [0.5, 0.5, 0.5],
               'batch_size': 8,  # 32, 64, 128, ...
