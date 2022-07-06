@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTETomek
 import matplotlib.pyplot as plt
 from datetime import datetime
+import matplotlib
 
 
 def mlp_model(parameters, x_train, y_train):
@@ -113,14 +114,14 @@ print(f"Loss: {loss}\n"
       f"Recall: {rec}\n")
 print("----------------------------------------------------------")
 
+matplotlib.rcParams.update({'font.size': 28})
 plt.figure()
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
-plt.title('Loss')
+plt.title('MLP loss function')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='best')
 plt.savefig(output_dir + 'loss')
-plt.show()
 
 plt.figure()
 plt.plot(history.history['auc'])

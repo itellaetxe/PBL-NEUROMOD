@@ -42,14 +42,14 @@ def save_print_metrics(df, rates, model_name):
 
 
 OUTPUT_DIR = "./output_ML/MD/JustTraining/"
-FILENAME = 'MDindiv_0p05'
+FILENAME = 'MDdual_0p05'
 tn = fp = tp = fn = 0
 
-path = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/Voxel_metrics/MD_indiv.csv"
+path = "C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/Voxel_metrics/MD_dual.csv"
 df = pd.read_csv(path, encoding='latin1', delimiter=',')
 
 # Just to use a subgroup
-my_file = open("C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/Voxel_metrics/MD_indiv_regs_FDR_0p05.txt", "r")
+my_file = open("C:/Users/imano/Desktop/MU/PBL/PBL-NEUROMOD/Voxel_metrics/MD_dual_regs_FDR_0p05.txt", "r")
 content = my_file.read()
 subgroup = content.split("\n")
 new_list = [s.replace('"', '') for s in subgroup]
